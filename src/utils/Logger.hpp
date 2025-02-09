@@ -58,7 +58,7 @@ namespace pyro {
 
             std::string logMessage = logStream.str(); {
                 std::lock_guard<std::mutex> lock(mutex_);
-                if (level >= LogLevel::INFO)
+                if (level >= LogLevel::WARNING)
                     std::cerr << logMessage << "\n";
                 else
                     std::cout << logMessage;
