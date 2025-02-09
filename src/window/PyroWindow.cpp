@@ -7,9 +7,11 @@
 #include <string>
 #include <SDL3/SDL.h>
 
+#include "../logger/Logger.hpp"
+
 namespace pyro {
-    PyroWindow::PyroWindow(int width, int height, std::string &title, int options) {
-        int sdl_options = 0;
+    PyroWindow::PyroWindow(int width, int height, const std::string& title, int options) {
+        SDL_WindowFlags sdl_options = 0;
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 
         sdl_options |= (options & WINDOW_FULLSCREEN)? SDL_WINDOW_FULLSCREEN : 0;
@@ -20,15 +22,20 @@ namespace pyro {
         sdl_options |= (options & WINDOW_ALWAYS_ON_TOP)? SDL_WINDOW_ALWAYS_ON_TOP : 0;
         sdl_options |= (options & WINDOW_UNFOCUSED)? SDL_WINDOW_NOT_FOCUSABLE: SDL_WINDOW_INPUT_FOCUS;
 
-        window = SDL_CreateWindow(title.c_str(), width, height, sdl_options);
+        window = SDL_CreateWindow(title.c_str(), width, height, sdl_options | SDL_WINDOW_VULKAN);
+        ASSERT(window, "Failed to create window");
     }
 
     PyroWindow::~PyroWindow() {
+        SDL_DestroyWindow(window);
+        SDL_Quit();
     }
 
     bool PyroWindow::should_close() {
-        return true;
+        return event.type == SDL_EVENT_QUIT;
     }
 
-
+    void PyroWindow::poll_events() {
+         SDL_PollEvent(&event);
+    }
 } // pyro

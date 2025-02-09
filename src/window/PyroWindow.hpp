@@ -8,7 +8,7 @@
 
 
 #include <string>
-#include <SDL3/SDL_video.h>
+#include <SDL3/SDL.h>
 
 namespace pyro {
     enum WindowOptions {
@@ -24,14 +24,14 @@ namespace pyro {
     class PyroWindow {
     public:
         PyroWindow(int width, int
-                   height, std::string &title, int options);
+                   height, const std::string& title, int options);
         ~PyroWindow();
-
-    private:
-        SDL_Window* window;
 
         bool should_close();
         void poll_events();
+    private:
+        SDL_Window* window;
+        SDL_Event event;
 
     };
 } // pyro
