@@ -31,7 +31,7 @@ namespace pyro {
 
     class Logger {
     public:
-        static Logger& getInstance() {
+        static Logger &getInstance() {
             static Logger instance;
             return instance;
         }
@@ -41,7 +41,7 @@ namespace pyro {
             minLogLevel = level;
         }
 
-        void enableFileLogging(const std::string& filename) {
+        void enableFileLogging(const std::string &filename) {
             std::lock_guard<std::mutex> lock(mutex_);
             logFile.open(filename, std::ios::out | std::ios::app);
             if (!logFile) {
@@ -49,31 +49,35 @@ namespace pyro {
             }
         }
 
-        void log(LogLevel level, const std::string& message, const char* file, int line) {
+        void log(LogLevel level, const std::string &message, const char *file, int line) {
             if (level < minLogLevel) return;
 
             std::ostringstream logStream;
             logStream << getCurrentTime() << " [" << logLevelToString(level) << "] "
-                      << file << ":" << line << " - " << message << "\n";
+                    << file << ":" << line << " - " << message << "\n";
 
-            std::string logMessage = logStream.str();
-
-            {
+            std::string logMessage = logStream.str(); {
                 std::lock_guard<std::mutex> lock(mutex_);
-                std::cout << logMessage;
+                if (level >= LogLevel::INFO)
+                    std::cerr << logMessage << "\n";
+                else
+                    std::cout << logMessage;
                 if (logFile.is_open()) {
                     logFile << logMessage;
                 }
             }
         }
-        void assertFailure(const char* expr, const char* file, int line) {
+
+        void assertFailure(const char *expr, const char *file, int line) {
             std::cerr << "[ASSERTION FAILED] " << expr << " at " << file << ":" << line << std::endl;
-            if (logFile.is_open()) logFile << "[ASSERTION FAILED] " << expr << " at " << file << ":" << line << std::endl;
+            if (logFile.is_open()) logFile << "[ASSERTION FAILED] " << expr << " at " << file << ":" << line <<
+                                   std::endl;
             std::abort();
         }
 
     private:
-        Logger() : minLogLevel(LogLevel::DEBUG) {}
+        Logger() : minLogLevel(LogLevel::DEBUG) {
+        }
 
         std::string getCurrentTime() {
             auto now = std::chrono::system_clock::now();
@@ -91,6 +95,7 @@ namespace pyro {
 #endif  // DEBUG
     };
 }
+
 // Logging Macros
 
 #ifdef PYRO_DEBUG
