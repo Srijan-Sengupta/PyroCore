@@ -101,12 +101,12 @@ namespace pyro {
 
 
 #ifdef PYRO_DEBUG
-#define ASSERT(expr, msg, ...) \
+#define ASSERT(expr, cmp, msg, ...) \
 LOG(pyro::LogLevel::DEBUG, "Asserting {}", #expr); \
-if (!(expr)) { \
-pyro::Logger::getInstance().assertFailure(#expr, __FILE__, __LINE__);\
+if ((expr) != (cmp)) { \
 LOG(pyro::LogLevel::DEBUG, msg, ##__VA_ARGS__);\
+pyro::Logger::getInstance().assertFailure(#expr, __FILE__, __LINE__);\
 }
 #else
-#define ASSERT(expr) ((void)0)
+#define ASSERT(expr, cmp, msg, ...) ((expr));
 #endif

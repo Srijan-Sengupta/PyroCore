@@ -6,8 +6,8 @@
 #define PYROWINDOW_HPP
 
 
-
 #include <string>
+#include <vector>
 #include <SDL3/SDL.h>
 
 namespace pyro {
@@ -24,15 +24,21 @@ namespace pyro {
     class PyroWindow {
     public:
         PyroWindow(int width, int
-                   height, const std::string& title, int options);
+                   height, const std::string &title, int options);
+
         ~PyroWindow();
 
         bool should_close();
-        void poll_events();
-    private:
-        SDL_Window* window;
-        SDL_Event event;
 
+        void poll_events();
+
+        char const *const*get_instance_extensions(uint32_t *ext_count);
+
+    private:
+        SDL_Window *window;
+        SDL_Event event;
+        uint32_t width;
+        uint32_t height;
     };
 } // pyro
 
