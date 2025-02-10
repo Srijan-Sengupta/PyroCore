@@ -4,15 +4,15 @@
 
 #include "PyroWindow.hpp"
 
-#include <string>
-#include <SDL3/SDL_vulkan.h>
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_vulkan.h>
+#include <string>
 
 #include "../utils/Logger.hpp"
 
 namespace pyro {
-    PyroWindow::PyroWindow(int width, int height, const std::string &title,
-                           int options) : width(width), height(height) {
+    PyroWindow::PyroWindow(int width, int height, const std::string &title, int options) :
+        width(width), height(height) {
         SDL_WindowFlags sdl_options = 0;
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 
@@ -25,26 +25,22 @@ namespace pyro {
         sdl_options |= (options & WINDOW_UNFOCUSED) ? SDL_WINDOW_NOT_FOCUSABLE : SDL_WINDOW_INPUT_FOCUS;
 
         window = SDL_CreateWindow(title.c_str(), width, height, sdl_options | SDL_WINDOW_VULKAN);
-        ASSERT(!window, false,"Failed to create window");
+        ASSERT(!window, false, "Failed to create window");
     }
 
     PyroWindow::~PyroWindow() {
         SDL_DestroyWindow(window);
         SDL_Quit();
-        LOG(LogLevel::INFO,"Window destroyed");
+        LOG(LogLevel::INFO, "Window destroyed");
     }
 
-    bool PyroWindow::should_close() {
-        return event.type == SDL_EVENT_QUIT;
-    }
+    bool PyroWindow::should_close() { return event.type == SDL_EVENT_QUIT; }
 
-    void PyroWindow::poll_events() {
-        SDL_PollEvent(&event);
-    }
+    void PyroWindow::poll_events() { SDL_PollEvent(&event); }
 
-    char const *const*PyroWindow::get_instance_extensions(uint32_t *ext_count) {
-        char const *const*extensions;
+    char const *const *PyroWindow::get_instance_extensions(uint32_t *ext_count) {
+        char const *const *extensions;
         extensions = SDL_Vulkan_GetInstanceExtensions(ext_count);
         return extensions;
     }
-} // pyro
+} // namespace pyro

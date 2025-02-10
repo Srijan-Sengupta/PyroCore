@@ -1,31 +1,31 @@
 #pragma once
 
-#include <iostream>
-#include <fstream>
-#include <mutex>
-#include <string>
-#include <sstream>
 #include <chrono>
-#include <iomanip>
 #include <format>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <mutex>
+#include <sstream>
+#include <string>
 
 namespace pyro {
-    enum class LogLevel {
-        DEBUG,
-        INFO,
-        WARNING,
-        ERROR,
-        CRITICAL
-    };
+    enum class LogLevel { DEBUG, INFO, WARNING, ERROR, CRITICAL };
 
     inline std::string logLevelToString(LogLevel level) {
         switch (level) {
-            case LogLevel::DEBUG: return "DEBUG";
-            case LogLevel::INFO: return "INFO";
-            case LogLevel::WARNING: return "WARNING";
-            case LogLevel::ERROR: return "ERROR";
-            case LogLevel::CRITICAL: return "CRITICAL";
-            default: return "UNKNOWN";
+            case LogLevel::DEBUG:
+                return "DEBUG";
+            case LogLevel::INFO:
+                return "INFO";
+            case LogLevel::WARNING:
+                return "WARNING";
+            case LogLevel::ERROR:
+                return "ERROR";
+            case LogLevel::CRITICAL:
+                return "CRITICAL";
+            default:
+                return "UNKNOWN";
         }
     }
 
@@ -36,10 +36,8 @@ namespace pyro {
             return instance;
         }
 
-#ifdef PYRO_DEBUG  // PYRO_DEBUG is defined
-        void setLogLevel(LogLevel level) {
-            minLogLevel = level;
-        }
+#ifdef PYRO_DEBUG // PYRO_DEBUG is defined
+        void setLogLevel(LogLevel level) { minLogLevel = level; }
 
         void enableFileLogging(const std::string &filename) {
             std::lock_guard<std::mutex> lock(mutex_);
@@ -50,13 +48,15 @@ namespace pyro {
         }
 
         void log(LogLevel level, const std::string &message, const char *file, int line) {
-            if (level < minLogLevel) return;
+            if (level < minLogLevel)
+                return;
 
             std::ostringstream logStream;
-            logStream << getCurrentTime() << " [" << logLevelToString(level) << "] "
-                    << file << ":" << line << " - " << message << "\n";
+            logStream << getCurrentTime() << " [" << logLevelToString(level) << "] " << file << ":" << line << " - "
+                      << message << "\n";
 
-            std::string logMessage = logStream.str(); {
+            std::string logMessage = logStream.str();
+            {
                 std::lock_guard<std::mutex> lock(mutex_);
                 if (level >= LogLevel::WARNING)
                     std::cerr << logMessage << "\n";
@@ -70,14 +70,13 @@ namespace pyro {
 
         void assertFailure(const char *expr, const char *file, int line) {
             std::cerr << "[ASSERTION FAILED] " << expr << " at " << file << ":" << line << std::endl;
-            if (logFile.is_open()) logFile << "[ASSERTION FAILED] " << expr << " at " << file << ":" << line <<
-                                   std::endl;
+            if (logFile.is_open())
+                logFile << "[ASSERTION FAILED] " << expr << " at " << file << ":" << line << std::endl;
             std::abort();
         }
 
     private:
-        Logger() : minLogLevel(LogLevel::DEBUG) {
-        }
+        Logger() : minLogLevel(LogLevel::DEBUG) {}
 
         std::string getCurrentTime() {
             auto now = std::chrono::system_clock::now();
@@ -92,26 +91,26 @@ namespace pyro {
         LogLevel minLogLevel;
         std::ofstream logFile;
         std::mutex mutex_;
-#endif  // DEBUG
+#endif // DEBUG
     };
-}
+} // namespace pyro
 
 // Logging Macros
 
 #ifdef PYRO_DEBUG
 #define LOG(level, msg, ...) pyro::Logger::getInstance().log(level, std::format(msg, ##__VA_ARGS__), __FILE__, __LINE__)
 #else
-#define LOG(level, msg, ...) ((void)0)
+#define LOG(level, msg, ...) ((void) 0)
 #endif
 
 
 #ifdef PYRO_DEBUG
-#define ASSERT(expr, cmp, msg, ...) \
-LOG(pyro::LogLevel::DEBUG, "Asserting {}", #expr); \
-if ((expr) != (cmp)) { \
-LOG(pyro::LogLevel::DEBUG, msg, ##__VA_ARGS__);\
-pyro::Logger::getInstance().assertFailure(#expr, __FILE__, __LINE__);\
-}
+#define ASSERT(expr, cmp, msg, ...)                                                                                    \
+    LOG(pyro::LogLevel::DEBUG, "Assert: {}=={}", #expr, #cmp);                                                         \
+    if ((expr) != (cmp)) {                                                                                             \
+        LOG(pyro::LogLevel::DEBUG, msg, ##__VA_ARGS__);                                                                \
+        pyro::Logger::getInstance().assertFailure(#expr, __FILE__, __LINE__);                                          \
+    }
 #else
 #define ASSERT(expr, cmp, msg, ...) ((expr));
 #endif

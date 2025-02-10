@@ -1,6 +1,6 @@
+#include <format>
 #include <iostream>
 #include "utils/Logger.hpp"
-#include<format>
 
 #include "core/VulkanInstance.hpp"
 #include "window/PyroWindow.hpp"
@@ -11,7 +11,7 @@ int main() {
     pyro::Logger::getInstance().enableFileLogging("pyro.log");
 #endif
     LOG(pyro::LogLevel::INFO, "Application started.");
-    pyro::PyroWindow window{600, 500, "Pyro Core",pyro::WindowOptions::WINDOW_NOT_RESIZABLE};
+    pyro::PyroWindow window{600, 500, "Pyro Core", pyro::WindowOptions::WINDOW_NOT_RESIZABLE};
     pyro::VulkanInstance instance{&window};
     while (!window.should_close()) {
         window.poll_events();

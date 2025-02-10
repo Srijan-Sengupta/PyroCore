@@ -4,5 +4,4 @@
 
 #include "FileLoader.hpp"
 
-namespace pyro {
-} // pyro
+namespace pyro {} // namespace pyro

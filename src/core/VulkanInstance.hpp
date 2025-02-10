@@ -11,9 +11,7 @@
 
 namespace pyro {
 #ifdef PYRO_DEBUG
-    const std::vector<const char *> validationLayers = {
-        "VK_LAYER_KHRONOS_validation"
-    };
+    const std::vector validationLayers = {"VK_LAYER_KHRONOS_validation"};
 #endif
 
     class VulkanInstance {
@@ -21,6 +19,7 @@ namespace pyro {
         VulkanInstance(PyroWindow *window);
 
         ~VulkanInstance();
+        VkInstance getInstance() { return instance; }
 
 #ifdef PYRO_DEBUG
         bool checkValidationLayerSupport();
@@ -28,17 +27,17 @@ namespace pyro {
 
     private:
         VkInstance instance{};
-        VkDebugUtilsMessengerEXT debug_utils_messenger{};
 #ifdef PYRO_DEBUG
+        VkDebugUtilsMessengerEXT debug_utils_messenger{};
+
         static const char *messageTypeToString(VkDebugUtilsMessageTypeFlagsEXT messageType);
 
-        static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-            VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-            VkDebugUtilsMessageTypeFlagsEXT messageType,
-            const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-            void *pUserData);
+        static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                                            VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                            const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+                                                            void *pUserData);
     };
 #endif
-} // pyro
+} // namespace pyro
 
-#endif //VULKANINSTANCE_HPP
+#endif // VULKANINSTANCE_HPP

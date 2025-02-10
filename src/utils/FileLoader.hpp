@@ -7,12 +7,8 @@
 
 namespace pyro {
 
-class FileLoader {
-  public:
+    class FileLoader {};
 
+} // namespace pyro
 
-};
-
-} // pyro
-
-#endif //FILELOADER_HPP
+#endif // FILELOADER_HPP
