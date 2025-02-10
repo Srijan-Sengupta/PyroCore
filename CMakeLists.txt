@@ -4,6 +4,7 @@ project(PyroCore)
 option(SDL "Enable SDL" ON)
 option(DESKTOP "Desktop Mode or Android" ON)
 option(PYRO_DEBUG "Debug mode" ON)
+option(LOGGING_ENABLED "Enable Logs" ON)
 
 set(SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders)
 file(GLOB_RECURSE SHADERS ${SHADER_DIR}/*.vert ${SHADER_DIR}/*.frag ${SHADER_DIR}/*.comp ${SHADER_DIR}/*.geom ${SHADER_DIR}/*.tesc ${SHADER_DIR}/*.tese)
@@ -29,7 +30,7 @@ include_directories(
         ${GLM_INCLUDE_DIRS}
 )
 
-file(GLOB_RECURSE SRC_FILES src/*.cpp)
+file(GLOB_RECURSE SRC_FILES src/*.cpp src/*.hpp)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -52,6 +53,10 @@ if (SDL)
     add_definitions(-DUSE_SDL)
     find_package(SDL3 REQUIRED)
     target_link_libraries(PyroCore SDL3)
+endif ()
+
+if (LOGGING_ENABLED)
+    add_definitions(-DENABLE_LOGGING)
 endif ()
 
 add_dependencies(PyroCore shaders)

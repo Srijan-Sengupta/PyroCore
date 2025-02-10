@@ -25,7 +25,7 @@ namespace pyro {
         instance_create_info.ppEnabledExtensionNames = extensions;
         instance_create_info.enabledLayerCount = 0;
 #ifdef PYRO_DEBUG
-        ASSERT(checkValidationLayerSupport(), true, "Failed to find Validation Layer");
+        ASSERT_EQUAL(checkValidationLayerSupport(), true, "Failed to find Validation Layer");
         std::vector extensions_vector(extensions, extensions + extension_count);
         extensions_vector.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         instance_create_info.enabledExtensionCount = extensions_vector.size();
@@ -52,7 +52,7 @@ namespace pyro {
         debug_utils_messenger_create_info.pfnUserCallback = debugCallback;
         instance_create_info.pNext = reinterpret_cast<VkDebugUtilsMessengerEXT *>(&debug_utils_messenger_create_info);
 #endif
-        ASSERT(vkCreateInstance(&instance_create_info, nullptr, &instance), VK_SUCCESS,
+        ASSERT_EQUAL(vkCreateInstance(&instance_create_info, nullptr, &instance), VK_SUCCESS,
                "Failed to create Vulkan Instance")
         LOG(LogLevel::INFO, "Created Vulkan Instance");
         LOG(LogLevel::DEBUG, "Enabled extensions: {}", extension_count);
@@ -60,8 +60,8 @@ namespace pyro {
 #ifdef PYRO_DEBUG
         auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
                 vkGetInstanceProcAddr(instance, ("vkCreateDebugUtilsMessengerEXT")));
-        ASSERT(!func, false, "Failed to find vkCreateDebugUtilsMessengerEXT function")
-        ASSERT(func(instance, &debug_utils_messenger_create_info, nullptr, &debug_utils_messenger), VK_SUCCESS,
+        ASSERT_EQUAL(!func, false, "Failed to find vkCreateDebugUtilsMessengerEXT function")
+        ASSERT_EQUAL(func(instance, &debug_utils_messenger_create_info, nullptr, &debug_utils_messenger), VK_SUCCESS,
                "Failed to call vkCreateDebugUtilsMessengerEXT")
 #endif
     }
@@ -70,7 +70,7 @@ namespace pyro {
 #ifdef PYRO_DEBUG
         auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
                 vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT"));
-        ASSERT(!func, false, "Failed to find vkDestroyDebugUtilsMessengerEXT function")
+        ASSERT_EQUAL(!func, false, "Failed to find vkDestroyDebugUtilsMessengerEXT function")
         func(instance, debug_utils_messenger, nullptr);
 #endif
         LOG(LogLevel::INFO, "Destroyed Vulkan Instance");

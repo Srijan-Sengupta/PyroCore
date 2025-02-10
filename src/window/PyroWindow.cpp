@@ -25,7 +25,7 @@ namespace pyro {
         sdl_options |= (options & WINDOW_UNFOCUSED) ? SDL_WINDOW_NOT_FOCUSABLE : SDL_WINDOW_INPUT_FOCUS;
 
         window = SDL_CreateWindow(title.c_str(), width, height, sdl_options | SDL_WINDOW_VULKAN);
-        ASSERT(!window, false, "Failed to create window");
+        ASSERT_EQUAL(!window, false, "Failed to create window");
     }
 
     PyroWindow::~PyroWindow() {
