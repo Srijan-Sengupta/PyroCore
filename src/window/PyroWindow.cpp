@@ -31,6 +31,7 @@ namespace pyro {
     PyroWindow::~PyroWindow() {
         SDL_DestroyWindow(window);
         SDL_Quit();
+        LOG(LogLevel::INFO,"Window destroyed");
     }
 
     bool PyroWindow::should_close() {

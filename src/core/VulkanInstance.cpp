@@ -58,7 +58,6 @@ namespace pyro {
 #ifdef PYRO_DEBUG
         auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
             vkGetInstanceProcAddr(instance, ("vkCreateDebugUtilsMessengerEXT")));
-        LOG(LogLevel::DEBUG, "func = {}", func==nullptr);
         ASSERT(!func, false, "Failed to find vkCreateDebugUtilsMessengerEXT function")
         ASSERT(func(instance, &debug_utils_messenger_create_info, nullptr, &debug_utils_messenger), VK_SUCCESS,
                "Failed to call vkCreateDebugUtilsMessengerEXT")
