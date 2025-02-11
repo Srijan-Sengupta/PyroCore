@@ -7,6 +7,7 @@
 
 
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_vulkan.h>
 #include <string>
 #include <vector>
 
@@ -31,7 +32,9 @@ namespace pyro {
 
         void poll_events();
 
+
         char const *const *get_instance_extensions(uint32_t *ext_count);
+        VkSurfaceKHR create_surface(VkInstance *instance);
 
     private:
         SDL_Window *window;

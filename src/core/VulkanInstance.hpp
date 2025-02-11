@@ -10,16 +10,15 @@
 #include "../window/PyroWindow.hpp"
 
 namespace pyro {
-#ifdef PYRO_DEBUG
-    const std::vector validationLayers = {"VK_LAYER_KHRONOS_validation"};
-#endif
-
     class VulkanInstance {
     public:
+#ifdef PYRO_DEBUG
+        const std::vector<const char *> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+#endif
         VulkanInstance(PyroWindow *window);
 
         ~VulkanInstance();
-        VkInstance getInstance() { return instance; }
+        VkInstance *getInstance() { return &instance; }
 
 #ifdef PYRO_DEBUG
         bool checkValidationLayerSupport();

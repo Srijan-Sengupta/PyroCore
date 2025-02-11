@@ -7,6 +7,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
 #include <string>
+#include <vulkan/vulkan_core.h>
 
 #include "../utils/Logger.hpp"
 
@@ -42,5 +43,10 @@ namespace pyro {
         char const *const *extensions;
         extensions = SDL_Vulkan_GetInstanceExtensions(ext_count);
         return extensions;
+    }
+    VkSurfaceKHR PyroWindow::create_surface(VkInstance *instance) {
+        VkSurfaceKHR surface;
+        ASSERT_EQUAL(SDL_Vulkan_CreateSurface(window, *instance, nullptr, &surface), true, "Failed to create surface");
+        return surface;
     }
 } // namespace pyro
