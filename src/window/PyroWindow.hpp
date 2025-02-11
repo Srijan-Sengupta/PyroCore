@@ -10,6 +10,7 @@
 #include <SDL3/SDL_vulkan.h>
 #include <string>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
 namespace pyro {
     enum WindowOptions {
@@ -31,6 +32,8 @@ namespace pyro {
         bool should_close();
 
         void poll_events();
+
+        VkExtent2D get_extent();
 
 
         char const *const *get_instance_extensions(uint32_t *ext_count);

@@ -38,6 +38,15 @@ namespace pyro {
     bool PyroWindow::should_close() { return event.type == SDL_EVENT_QUIT; }
 
     void PyroWindow::poll_events() { SDL_PollEvent(&event); }
+    VkExtent2D PyroWindow::get_extent() {
+        int width, height;
+        SDL_GetWindowSizeInPixels(window, &width, &height);
+        VkExtent2D extent = {
+        .width = static_cast<uint32_t>(width) ,
+        .height = static_cast<uint32_t>(height),
+        };
+        return extent;
+    }
 
     char const *const *PyroWindow::get_instance_extensions(uint32_t *ext_count) {
         char const *const *extensions;
