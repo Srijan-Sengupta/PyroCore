@@ -72,7 +72,7 @@ namespace pyro {
             std::cerr << "[ASSERTION FAILED] " << expr << " at " << file << ":" << line << std::endl;
             if (logFile.is_open())
                 logFile << "[ASSERTION FAILED] " << expr << " at " << file << ":" << line << std::endl;
-            std::abort();
+            std::exit(-1);
         }
 
     private:

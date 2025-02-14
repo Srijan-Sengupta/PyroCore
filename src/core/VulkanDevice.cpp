@@ -136,10 +136,43 @@ namespace pyro {
             view_create_info.subresourceRange.layerCount = 1;
             ASSERT_EQUAL(vkCreateImageView(logicalDevice, &view_create_info, nullptr, &swapChainImageViews[i]),
                          VK_SUCCESS, "Failed to create image views")
+            // Create Command pool
+            VkCommandPoolCreateInfo command_pool_create_info = {};
+            command_pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+            command_pool_create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+            command_pool_create_info.queueFamilyIndex = indices.graphics_family_index.value();
+            ASSERT_EQUAL(vkCreateCommandPool(logicalDevice, &command_pool_create_info, nullptr, &commandPool),
+                         VK_SUCCESS, "Failed to create command pool")
+
+            VkCommandBufferAllocateInfo command_buffer_allocate_info = {};
+            command_buffer_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            command_buffer_allocate_info.commandPool = commandPool;
+            command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            command_buffer_allocate_info.commandBufferCount = 1;
+
+            ASSERT_EQUAL(vkAllocateCommandBuffers(logicalDevice, &command_buffer_allocate_info, &commandBuffer),
+                         VK_SUCCESS, "Failed to allocate command buffers")
+
+            VkSemaphoreCreateInfo semaphore_create_info = {};
+            semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+            VkFenceCreateInfo fence_create_info = {};
+            fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+            fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+            ASSERT_EQUAL(vkCreateSemaphore(logicalDevice, &semaphore_create_info, nullptr, &imageAvailableSemaphore),
+                         VK_SUCCESS, "Failed to create semaphore")
+            ASSERT_EQUAL(vkCreateSemaphore(logicalDevice, &semaphore_create_info, nullptr, &renderFinishedSemaphore),
+                         VK_SUCCESS, "Failed to create semaphore")
+            ASSERT_EQUAL(vkCreateFence(logicalDevice, &fence_create_info, nullptr, &inflightFence), VK_SUCCESS,
+                         "Failed to create fence")
         }
     }
     VulkanDevice::~VulkanDevice() {
-        for (auto imageView : swapChainImageViews) {
+        vkDeviceWaitIdle(logicalDevice);
+        vkDestroySemaphore(logicalDevice, renderFinishedSemaphore, nullptr);
+        vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
+        vkDestroyFence(logicalDevice, inflightFence, nullptr);
+        vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
+        for (auto imageView: swapChainImageViews) {
             vkDestroyImageView(logicalDevice, imageView, nullptr);
         }
         vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
@@ -182,6 +215,43 @@ namespace pyro {
         ASSERT_EQUAL(strlen(prop.deviceName) > 0, true, "Failed to get physical device properties");
 
         return prop.deviceName;
+    }
+    void VulkanDevice::record_command_buffer(const VkCommandBuffer &command_buffer, const uint32_t imageIndex,
+                                             const VkRenderPass &renderPass, const VkPipeline graphics_pipeline,
+                                             std::vector<VkFramebuffer> swapChainFrameBuffers) {
+        VkCommandBufferBeginInfo begin_info{};
+        begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        begin_info.flags = 0;
+        begin_info.pInheritanceInfo = nullptr;
+        ASSERT_EQUAL(vkBeginCommandBuffer(command_buffer, &begin_info), VK_SUCCESS,
+                     "Failed to begin recording command buffer")
+        VkRenderPassBeginInfo render_pass_begin_info{};
+        render_pass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        render_pass_begin_info.renderPass = renderPass;
+        render_pass_begin_info.framebuffer = swapChainFrameBuffers[imageIndex];
+        render_pass_begin_info.renderArea.offset = {0, 0};
+        render_pass_begin_info.renderArea.extent = swapChainExtent;
+        const VkClearValue clear_value{0.0f, 0.0f, 0.0f, 1.0f};
+        render_pass_begin_info.clearValueCount = 1;
+        render_pass_begin_info.pClearValues = &clear_value;
+        vkCmdBeginRenderPass(commandBuffer, &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
+
+        VkViewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = swapChainExtent.width;
+        viewport.height = swapChainExtent.height;
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+        VkRect2D scissor{};
+        scissor.extent = swapChainExtent;
+        scissor.offset = {0, 0};
+        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+        vkCmdEndRenderPass(commandBuffer);
+        ASSERT_EQUAL(vkEndCommandBuffer(commandBuffer), VK_SUCCESS, "Failed to record command buffer")
     }
 
     QueueFamilyIndices VulkanDevice::findQueueFamilyIndex(const VkPhysicalDevice *device) const {
