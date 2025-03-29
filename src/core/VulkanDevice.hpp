@@ -28,6 +28,8 @@ namespace pyro {
     public:
         VulkanDevice(VulkanInstance *instance, PyroWindow *window, int gpu_index = 0);
         ~VulkanDevice();
+        VulkanDevice(const VulkanDevice &) = delete;
+        VulkanDevice &operator=(const VulkanDevice &) = delete;
 
         static std::string get_physical_device_name(const VkPhysicalDevice *device);
         void record_command_buffer(const VkCommandBuffer &command_buffer, uint32_t imageIndex,
