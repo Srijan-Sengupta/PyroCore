@@ -27,6 +27,7 @@ namespace pyro {
         }
         std::string device_name(get_physical_device_name(&physicalDevice));
         LOG(LogLevel::INFO, "Created Vulkan device: {}", device_name);
+        pyro::Logger::getInstance().log(LogLevel::INFO, std::format("Created Vulkan device: {}", device_name), "_file_name_",29);
 
 
         // Creating Logical Device
@@ -144,33 +145,44 @@ namespace pyro {
             ASSERT_EQUAL(vkCreateCommandPool(logicalDevice, &command_pool_create_info, nullptr, &commandPool),
                          VK_SUCCESS, "Failed to create command pool")
 
+            commandBuffer.resize(MAX_FRAME_ON_FLIGHT);
             VkCommandBufferAllocateInfo command_buffer_allocate_info = {};
             command_buffer_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
             command_buffer_allocate_info.commandPool = commandPool;
             command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            command_buffer_allocate_info.commandBufferCount = 1;
+            command_buffer_allocate_info.commandBufferCount = MAX_FRAME_ON_FLIGHT;
 
-            ASSERT_EQUAL(vkAllocateCommandBuffers(logicalDevice, &command_buffer_allocate_info, &commandBuffer),
+            ASSERT_EQUAL(vkAllocateCommandBuffers(logicalDevice, &command_buffer_allocate_info, commandBuffer.data()),
                          VK_SUCCESS, "Failed to allocate command buffers")
+
+            imageAvailableSemaphore.resize(MAX_FRAME_ON_FLIGHT);
+            renderFinishedSemaphore.resize(MAX_FRAME_ON_FLIGHT);
+            inflightFence.resize(MAX_FRAME_ON_FLIGHT);
 
             VkSemaphoreCreateInfo semaphore_create_info = {};
             semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
             VkFenceCreateInfo fence_create_info = {};
             fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
             fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-            ASSERT_EQUAL(vkCreateSemaphore(logicalDevice, &semaphore_create_info, nullptr, &imageAvailableSemaphore),
-                         VK_SUCCESS, "Failed to create semaphore")
-            ASSERT_EQUAL(vkCreateSemaphore(logicalDevice, &semaphore_create_info, nullptr, &renderFinishedSemaphore),
-                         VK_SUCCESS, "Failed to create semaphore")
-            ASSERT_EQUAL(vkCreateFence(logicalDevice, &fence_create_info, nullptr, &inflightFence), VK_SUCCESS,
-                         "Failed to create fence")
+            for(int i = 0; i< MAX_FRAME_ON_FLIGHT; i++){
+                ASSERT_EQUAL(
+                        vkCreateSemaphore(logicalDevice, &semaphore_create_info, nullptr, &imageAvailableSemaphore[i]),
+                        VK_SUCCESS, "Failed to create semaphore")
+                ASSERT_EQUAL(
+                        vkCreateSemaphore(logicalDevice, &semaphore_create_info, nullptr, &renderFinishedSemaphore[i]),
+                        VK_SUCCESS, "Failed to create semaphore")
+                ASSERT_EQUAL(vkCreateFence(logicalDevice, &fence_create_info, nullptr, &inflightFence[i]), VK_SUCCESS,
+                             "Failed to create fence")
+            }
         }
     }
     VulkanDevice::~VulkanDevice() {
         vkDeviceWaitIdle(logicalDevice);
-        vkDestroySemaphore(logicalDevice, renderFinishedSemaphore, nullptr);
-        vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
-        vkDestroyFence(logicalDevice, inflightFence, nullptr);
+        for (int i=0;i< MAX_FRAME_ON_FLIGHT; i++){
+            vkDestroySemaphore(logicalDevice, renderFinishedSemaphore[i], nullptr);
+            vkDestroySemaphore(logicalDevice, imageAvailableSemaphore[i], nullptr);
+            vkDestroyFence(logicalDevice, inflightFence[i], nullptr);
+        }
         vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
         for (auto imageView: swapChainImageViews) {
             vkDestroyImageView(logicalDevice, imageView, nullptr);

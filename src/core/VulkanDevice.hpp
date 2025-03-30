@@ -14,6 +14,7 @@
 
 namespace pyro {
     const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    const int MAX_FRAME_ON_FLIGHT = 2;
     struct SwapChainSupportDetails {
         VkSurfaceCapabilitiesKHR capabilities;
         std::vector<VkSurfaceFormatKHR> formats;
@@ -49,10 +50,10 @@ namespace pyro {
         std::vector<VkImage> get_swap_chain_images() const { return swapChainImages; }
         VkFormat get_swap_chain_image_format() const { return swapChainImageFormat; }
         std::vector<VkImageView> get_swap_chain_image_views() const { return swapChainImageViews; }
-        VkSemaphore get_image_available_semaphore() const { return imageAvailableSemaphore; }
-        VkSemaphore get_render_finished_semaphore() const { return renderFinishedSemaphore; }
-        const VkFence *get_inflight_fence() const { return &inflightFence; }
-        const VkCommandBuffer *get_command_buffer() const { return &commandBuffer; }
+        const VkSemaphore* get_image_available_semaphore() const { return imageAvailableSemaphore.data(); }
+        const VkSemaphore* get_render_finished_semaphore() const { return renderFinishedSemaphore.data(); }
+        const VkFence *get_inflight_fence() const { return inflightFence.data(); }
+        const VkCommandBuffer *get_command_buffer() const { return commandBuffer.data(); }
 
         std::multimap<int, VkPhysicalDevice, std::greater<>> listPhysicalDevices() const;
         int rateDevice(const VkPhysicalDevice *device) const;
@@ -67,15 +68,15 @@ namespace pyro {
         VkDevice logicalDevice{};
         VkSurfaceKHR surface;
         VkCommandPool commandPool{};
-        VkCommandBuffer commandBuffer;
+        std::vector<VkCommandBuffer> commandBuffer;
         VkSwapchainKHR swapChain{};
         std::vector<VkImage> swapChainImages;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
         std::vector<VkImageView> swapChainImageViews;
-        VkSemaphore imageAvailableSemaphore;
-        VkSemaphore renderFinishedSemaphore;
-        VkFence inflightFence;
+        std::vector<VkSemaphore> imageAvailableSemaphore;
+        std::vector<VkSemaphore> renderFinishedSemaphore;
+        std::vector<VkFence> inflightFence;
 
 
         void initializeSwapChain(PyroWindow *window) const;

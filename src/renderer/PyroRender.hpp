@@ -24,6 +24,7 @@ namespace pyro {
 
     private:
         void draw_frame();
+        int current_frame = 0;
     };
 } // namespace pyro
 

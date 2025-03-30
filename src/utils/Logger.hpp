@@ -98,14 +98,14 @@ namespace pyro {
 // Logging Macros
 
 #ifdef ENABLE_LOGGING
-#define LOG(level, msg, ...) pyro::Logger::getInstance().log(level, std::format(msg, ##__VA_ARGS__), __FILE__, __LINE__)
+#define LOG(level, msg, args...) pyro::Logger::getInstance().log(level, std::format(msg, ##args), __FILE__, __LINE__)
 #else
 #define LOG(level, msg, ...) ((void) 0)
 #endif
 
 
 #ifdef PYRO_DEBUG
-#define ASSERT_EQUAL(expr, cmp, msg, ...)                                                                                    \
+#define ASSERT_EQUAL(expr, cmp, msg, ...)                                                                              \
     LOG(pyro::LogLevel::DEBUG, "Assert: {}=={}", #expr, #cmp);                                                         \
     if ((expr) != (cmp)) {                                                                                             \
         LOG(pyro::LogLevel::DEBUG, msg, ##__VA_ARGS__);                                                                \
