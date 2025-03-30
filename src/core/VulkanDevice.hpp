@@ -32,9 +32,9 @@ namespace pyro {
         VulkanDevice &operator=(const VulkanDevice &) = delete;
 
         static std::string get_physical_device_name(const VkPhysicalDevice *device);
-        void record_command_buffer(const VkCommandBuffer &command_buffer, uint32_t imageIndex,
-                                   const VkRenderPass &renderPass, VkPipeline graphics_pipeline,
-                                   std::vector<VkFramebuffer> swapChainFrameBuffers);
+        static void record_command_buffer(const VkCommandBuffer &command_buffer, const uint32_t imageIndex,
+                                   const VkRenderPass &renderPass, const VkPipeline graphics_pipeline,
+                                   std::vector<VkFramebuffer> swapChainFrameBuffers, VkExtent2D swapchain_extent);
 
 
         VkPhysicalDevice get_physical_device() const { return physicalDevice; }
@@ -67,15 +67,15 @@ namespace pyro {
         VkDevice logicalDevice{};
         VkSurfaceKHR surface;
         VkCommandPool commandPool{};
-        VkCommandBuffer commandBuffer{};
+        VkCommandBuffer commandBuffer;
         VkSwapchainKHR swapChain{};
         std::vector<VkImage> swapChainImages;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
         std::vector<VkImageView> swapChainImageViews;
-        VkSemaphore imageAvailableSemaphore{};
-        VkSemaphore renderFinishedSemaphore{};
-        VkFence inflightFence{};
+        VkSemaphore imageAvailableSemaphore;
+        VkSemaphore renderFinishedSemaphore;
+        VkFence inflightFence;
 
 
         void initializeSwapChain(PyroWindow *window) const;

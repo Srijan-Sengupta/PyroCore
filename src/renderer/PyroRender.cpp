@@ -32,7 +32,7 @@ namespace pyro {
                      VK_SUCCESS, "Failed to Acquire next image")
         vkResetCommandBuffer(*device.get_command_buffer(), 0);
         device.record_command_buffer(*device.get_command_buffer(), image_index, pyroPipeline.get_render_pass(),
-                                     pyroPipeline.get_pipeline(), pyroPipeline.get_swap_chain_framebuffers());
+                                     pyroPipeline.get_pipeline(), pyroPipeline.get_swap_chain_framebuffers(), device.get_swap_chain_extent());
         VkSubmitInfo submit_info = {};
         submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         VkSemaphore wait_semaphores[] = {device.get_image_available_semaphore()};

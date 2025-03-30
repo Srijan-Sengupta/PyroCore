@@ -218,7 +218,8 @@ namespace pyro {
     }
     void VulkanDevice::record_command_buffer(const VkCommandBuffer &command_buffer, const uint32_t imageIndex,
                                              const VkRenderPass &renderPass, const VkPipeline graphics_pipeline,
-                                             std::vector<VkFramebuffer> swapChainFrameBuffers) {
+                                             std::vector<VkFramebuffer> swapChainFrameBuffers,
+                                             VkExtent2D swapchain_extent) {
         VkCommandBufferBeginInfo begin_info{};
         begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         begin_info.flags = 0;
@@ -230,28 +231,28 @@ namespace pyro {
         render_pass_begin_info.renderPass = renderPass;
         render_pass_begin_info.framebuffer = swapChainFrameBuffers[imageIndex];
         render_pass_begin_info.renderArea.offset = {0, 0};
-        render_pass_begin_info.renderArea.extent = swapChainExtent;
+        render_pass_begin_info.renderArea.extent = swapchain_extent;
         const VkClearValue clear_value{0.0f, 0.0f, 0.0f, 1.0f};
         render_pass_begin_info.clearValueCount = 1;
         render_pass_begin_info.pClearValues = &clear_value;
-        vkCmdBeginRenderPass(commandBuffer, &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
+        vkCmdBeginRenderPass(command_buffer, &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
 
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = swapChainExtent.width;
-        viewport.height = swapChainExtent.height;
+        viewport.width = swapchain_extent.width;
+        viewport.height = swapchain_extent.height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+        vkCmdSetViewport(command_buffer, 0, 1, &viewport);
         VkRect2D scissor{};
-        scissor.extent = swapChainExtent;
+        scissor.extent = swapchain_extent;
         scissor.offset = {0, 0};
-        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
-        vkCmdEndRenderPass(commandBuffer);
-        ASSERT_EQUAL(vkEndCommandBuffer(commandBuffer), VK_SUCCESS, "Failed to record command buffer")
+        vkCmdSetScissor(command_buffer, 0, 1, &scissor);
+        vkCmdDraw(command_buffer, 3, 1, 0, 0);
+        vkCmdEndRenderPass(command_buffer);
+        ASSERT_EQUAL(vkEndCommandBuffer(command_buffer), VK_SUCCESS, "Failed to record command buffer")
     }
 
     QueueFamilyIndices VulkanDevice::findQueueFamilyIndex(const VkPhysicalDevice *device) const {
