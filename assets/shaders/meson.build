@@ -9,6 +9,8 @@ foreach shader: shaders_src
                   output: outfile,
                     input: shader,
     command: [vulkan_glslc, '@INPUT@', '-o', '@OUTPUT@'],
+    install: true,
+    install_dir: 'PyroCore'/'assets/shaders'
     )
     message('Built: ' + shader)
 endforeach

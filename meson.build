@@ -21,5 +21,7 @@ endif
 
 executable('PyroCore',
            src + spv_targets,
-           dependencies: deps
+           dependencies: deps,
+            install: true,
+            install_dir: 'PyroCore'
 )

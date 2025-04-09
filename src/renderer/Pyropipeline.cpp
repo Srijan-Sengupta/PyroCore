@@ -196,6 +196,7 @@ namespace pyro {
         }
     }
     Pyropipeline::~Pyropipeline() {
+        LOG(LogLevel::DEBUG, "Destroying Vulkan Pipeline");
         vkDeviceWaitIdle(device->get_logical_device());
         for (auto swap_chain_framebuffer : swap_chain_framebuffers) {
             vkDestroyFramebuffer(device->get_logical_device(), swap_chain_framebuffer, nullptr);

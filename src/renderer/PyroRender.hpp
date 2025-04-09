@@ -19,6 +19,7 @@ namespace pyro {
         VulkanDevice device;
         Pyropipeline pyroPipeline;
         PyroRender();
+        ~PyroRender();
 
         void run();
 

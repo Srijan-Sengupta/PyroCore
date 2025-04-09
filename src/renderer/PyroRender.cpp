@@ -16,6 +16,10 @@ namespace pyro {
         window(600, 500, "PyroCore", WindowOptions::WINDOW_NOT_RESIZABLE), instance(&window),
         device(&instance, &window), pyroPipeline(&device) {}
 
+    PyroRender::~PyroRender() {
+        LOG(LogLevel::DEBUG, "Destroying Vulkan Renderer");
+    }
+
     void PyroRender::run() {
         while (!window.should_close()) {
             window.poll_events();
