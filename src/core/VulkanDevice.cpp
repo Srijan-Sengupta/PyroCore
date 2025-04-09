@@ -77,41 +77,7 @@ namespace pyro {
 
 
         // Creating Swap chain.
-        VkSurfaceFormatKHR surface_format = chooseSwapSurfaceFormat(swap_support.formats);
-        VkPresentModeKHR present_mode = chooseSwapPresentMode(swap_support.presentModes);
-        VkExtent2D swap_extent = chooseSwapExtent(swap_support.capabilities, window);
-        uint32_t image_count = swap_support.capabilities.minImageCount + 1;
-        if (swap_support.capabilities.maxImageCount > 0 && image_count > swap_support.capabilities.maxImageCount) {
-            image_count = swap_support.capabilities.maxImageCount;
-        }
-        VkSwapchainCreateInfoKHR swap_create_info = {};
-        swap_create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        swap_create_info.surface = surface;
-        swap_create_info.minImageCount = image_count;
-        swap_create_info.imageFormat = surface_format.format;
-        swap_create_info.imageColorSpace = surface_format.colorSpace;
-        swap_create_info.imageExtent = swap_extent;
-        swap_create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-        swap_create_info.imageArrayLayers = 1;
-        uint32_t queueFamilyIndex[] = {indices.graphics_family_index.value(), indices.present_family_index.value()};
-        if (indices.graphics_family_index.value() == indices.present_family_index.value()) {
-            swap_create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-            swap_create_info.queueFamilyIndexCount = 0;
-            swap_create_info.pQueueFamilyIndices = nullptr;
-        } else {
-            swap_create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-            swap_create_info.queueFamilyIndexCount = 2;
-            swap_create_info.pQueueFamilyIndices = queueFamilyIndex;
-        }
-        swap_create_info.preTransform = swap_support.capabilities.currentTransform;
-        swap_create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-        swap_create_info.presentMode = present_mode;
-        swap_create_info.clipped = VK_TRUE;
-        swap_create_info.oldSwapchain = VK_NULL_HANDLE;
-        ASSERT_EQUAL(vkCreateSwapchainKHR(logicalDevice, &swap_create_info, nullptr, &swapChain), VK_SUCCESS,
-                     "Failed to create swap chain")
-        swapChainExtent = swap_extent;
-        swapChainImageFormat = surface_format.format;
+        create_swap_chain(swap_support, window);
 
         uint32_t swapChainImageCount;
         vkGetSwapchainImagesKHR(logicalDevice, swapChain, &swapChainImageCount, nullptr);
@@ -218,6 +184,44 @@ namespace pyro {
         swap_extent.height =
                 std::clamp(swap_extent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
         return swap_extent;
+    }
+
+    void VulkanDevice::create_swap_chain(SwapChainSupportDetails swap_support, PyroWindow *window) {
+        VkSurfaceFormatKHR surface_format = chooseSwapSurfaceFormat(swap_support.formats);
+        VkPresentModeKHR present_mode = chooseSwapPresentMode(swap_support.presentModes);
+        VkExtent2D swap_extent = chooseSwapExtent(swap_support.capabilities, window);
+        uint32_t image_count = swap_support.capabilities.minImageCount + 1;
+        if (swap_support.capabilities.maxImageCount > 0 && image_count > swap_support.capabilities.maxImageCount) {
+            image_count = swap_support.capabilities.maxImageCount;
+        }
+        VkSwapchainCreateInfoKHR swap_create_info = {};
+        swap_create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        swap_create_info.surface = surface;
+        swap_create_info.minImageCount = image_count;
+        swap_create_info.imageFormat = surface_format.format;
+        swap_create_info.imageColorSpace = surface_format.colorSpace;
+        swap_create_info.imageExtent = swap_extent;
+        swap_create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        swap_create_info.imageArrayLayers = 1;
+        uint32_t queueFamilyIndex[] = {indices.graphics_family_index.value(), indices.present_family_index.value()};
+        if (indices.graphics_family_index.value() == indices.present_family_index.value()) {
+            swap_create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            swap_create_info.queueFamilyIndexCount = 0;
+            swap_create_info.pQueueFamilyIndices = nullptr;
+        } else {
+            swap_create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+            swap_create_info.queueFamilyIndexCount = 2;
+            swap_create_info.pQueueFamilyIndices = queueFamilyIndex;
+        }
+        swap_create_info.preTransform = swap_support.capabilities.currentTransform;
+        swap_create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        swap_create_info.presentMode = present_mode;
+        swap_create_info.clipped = VK_TRUE;
+        swap_create_info.oldSwapchain = VK_NULL_HANDLE;
+        ASSERT_EQUAL(vkCreateSwapchainKHR(logicalDevice, &swap_create_info, nullptr, &swapChain), VK_SUCCESS,
+                     "Failed to create swap chain")
+        swapChainExtent = swap_extent;
+        swapChainImageFormat = surface_format.format;
     }
 
     std::string VulkanDevice::get_physical_device_name(const VkPhysicalDevice *device) {

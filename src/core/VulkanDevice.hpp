@@ -31,6 +31,7 @@ namespace pyro {
         ~VulkanDevice();
         VulkanDevice(const VulkanDevice &) = delete;
         VulkanDevice &operator=(const VulkanDevice &) = delete;
+        void create_swap_chain(SwapChainSupportDetails swap_support, PyroWindow *window);
 
         static std::string get_physical_device_name(const VkPhysicalDevice *device);
         static void record_command_buffer(const VkCommandBuffer &command_buffer, const uint32_t imageIndex,
