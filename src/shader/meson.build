@@ -1,3 +1,3 @@
 shader_src = files(
-'PyroShaderModule.cpp'
+    'PyroShaderModule.cpp'
 )

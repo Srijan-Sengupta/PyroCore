@@ -1,4 +1,4 @@
 window_src = files(
-'PyroWindow.cpp',
-'PyroEvents.cpp'
+    'PyroWindow.cpp',
+    'PyroEvents.cpp'
 )

@@ -1,4 +1,4 @@
 core_src = files(
-'VulkanDevice.cpp',
-'VulkanInstance.cpp'
+    'VulkanDevice.cpp',
+    'VulkanInstance.cpp'
 )

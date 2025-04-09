@@ -1,4 +1,4 @@
 renderer_src = files(
-'Pyropipeline.cpp',
-'PyroRender.cpp'
+    'Pyropipeline.cpp',
+    'PyroRender.cpp'
 )

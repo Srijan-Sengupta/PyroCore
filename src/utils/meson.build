@@ -1,3 +1,3 @@
 utils_src = files(
-'ShaderLoader.cpp'
+    'ShaderLoader.cpp'
 )
