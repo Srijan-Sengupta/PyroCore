@@ -1,0 +1,2 @@
+subdir('shaders')
+assets = shaders

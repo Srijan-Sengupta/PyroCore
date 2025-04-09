@@ -1,0 +1,4 @@
+option('desktop', type : 'boolean', value : true, description : 'Build for desktop (vs Android)')
+option('sdl', type : 'boolean', value : true, description : 'Enable SDL support')
+option('pyro_debug', type : 'boolean', value : true, description : 'Enable debug mode')
+option('logging_enabled', type : 'boolean', value : true, description : 'Enable logging')
