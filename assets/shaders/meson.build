@@ -10,6 +10,6 @@ foreach shader: shaders_src
                     input: shader,
     command: [vulkan_glslc, '@INPUT@', '-o', '@OUTPUT@'],
     )
-    message('Built' + shader)
+    message('Built: ' + shader)
 endforeach
 ##=======================================##
