@@ -27,14 +27,17 @@ namespace pyro {
         }
         std::string device_name(get_physical_device_name(&physicalDevice));
         LOG(LogLevel::INFO, "Created Vulkan device: {}", device_name);
-        pyro::Logger::getInstance().log(LogLevel::INFO, std::format("Created Vulkan device: {}", device_name), "_file_name_",29);
+        pyro::Logger::getInstance().log(LogLevel::INFO, std::format("Created Vulkan device: {}", device_name),
+                                        "_file_name_", 29);
 
 
         // Creating Logical Device
         indices = findQueueFamilyIndex(&physicalDevice);
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-        const std::set uniqueQueueFamilyIndices = {indices.graphics_family_index.value(),
-                                                   indices.present_family_index.value()};
+        const std::set uniqueQueueFamilyIndices = {
+            indices.graphics_family_index.value(),
+            indices.present_family_index.value()
+        };
 
         float queuePriority = 1.0f;
         for (const auto &queue_family: uniqueQueueFamilyIndices) {
@@ -85,66 +88,49 @@ namespace pyro {
         vkGetSwapchainImagesKHR(logicalDevice, swapChain, &swapChainImageCount, swapChainImages.data());
 
         // Creating Image Views
-        swapChainImageViews.resize(swapChainImageCount);
-        for (uint32_t i = 0; i < swapChainImageCount; i++) {
-            VkImageViewCreateInfo view_create_info = {};
-            view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            view_create_info.image = swapChainImages[i];
-            view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            view_create_info.format = swapChainImageFormat;
-            view_create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-            view_create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-            view_create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-            view_create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-            view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            view_create_info.subresourceRange.baseMipLevel = 0;
-            view_create_info.subresourceRange.levelCount = 1;
-            view_create_info.subresourceRange.baseArrayLayer = 0;
-            view_create_info.subresourceRange.layerCount = 1;
-            ASSERT_EQUAL(vkCreateImageView(logicalDevice, &view_create_info, nullptr, &swapChainImageViews[i]),
-                         VK_SUCCESS, "Failed to create image views")
-            // Create Command pool
-            VkCommandPoolCreateInfo command_pool_create_info = {};
-            command_pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-            command_pool_create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-            command_pool_create_info.queueFamilyIndex = indices.graphics_family_index.value();
-            ASSERT_EQUAL(vkCreateCommandPool(logicalDevice, &command_pool_create_info, nullptr, &commandPool),
-                         VK_SUCCESS, "Failed to create command pool")
+        create_image_views(swapChainImageCount);
+        // Create Command pool
+        VkCommandPoolCreateInfo command_pool_create_info = {};
+        command_pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        command_pool_create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        command_pool_create_info.queueFamilyIndex = indices.graphics_family_index.value();
+        ASSERT_EQUAL(vkCreateCommandPool(logicalDevice, &command_pool_create_info, nullptr, &commandPool),
+                     VK_SUCCESS, "Failed to create command pool")
 
-            commandBuffer.resize(MAX_FRAME_ON_FLIGHT);
-            VkCommandBufferAllocateInfo command_buffer_allocate_info = {};
-            command_buffer_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-            command_buffer_allocate_info.commandPool = commandPool;
-            command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            command_buffer_allocate_info.commandBufferCount = MAX_FRAME_ON_FLIGHT;
+        commandBuffer.resize(MAX_FRAME_ON_FLIGHT);
+        VkCommandBufferAllocateInfo command_buffer_allocate_info = {};
+        command_buffer_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        command_buffer_allocate_info.commandPool = commandPool;
+        command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        command_buffer_allocate_info.commandBufferCount = MAX_FRAME_ON_FLIGHT;
 
-            ASSERT_EQUAL(vkAllocateCommandBuffers(logicalDevice, &command_buffer_allocate_info, commandBuffer.data()),
-                         VK_SUCCESS, "Failed to allocate command buffers")
+        ASSERT_EQUAL(vkAllocateCommandBuffers(logicalDevice, &command_buffer_allocate_info, commandBuffer.data()),
+                     VK_SUCCESS, "Failed to allocate command buffers")
 
-            imageAvailableSemaphore.resize(MAX_FRAME_ON_FLIGHT);
-            renderFinishedSemaphore.resize(MAX_FRAME_ON_FLIGHT);
-            inflightFence.resize(MAX_FRAME_ON_FLIGHT);
+        imageAvailableSemaphore.resize(MAX_FRAME_ON_FLIGHT);
+        renderFinishedSemaphore.resize(MAX_FRAME_ON_FLIGHT);
+        inflightFence.resize(MAX_FRAME_ON_FLIGHT);
 
-            VkSemaphoreCreateInfo semaphore_create_info = {};
-            semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-            VkFenceCreateInfo fence_create_info = {};
-            fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-            fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-            for(int i = 0; i< MAX_FRAME_ON_FLIGHT; i++){
-                ASSERT_EQUAL(
-                        vkCreateSemaphore(logicalDevice, &semaphore_create_info, nullptr, &imageAvailableSemaphore[i]),
-                        VK_SUCCESS, "Failed to create semaphore")
-                ASSERT_EQUAL(
-                        vkCreateSemaphore(logicalDevice, &semaphore_create_info, nullptr, &renderFinishedSemaphore[i]),
-                        VK_SUCCESS, "Failed to create semaphore")
-                ASSERT_EQUAL(vkCreateFence(logicalDevice, &fence_create_info, nullptr, &inflightFence[i]), VK_SUCCESS,
-                             "Failed to create fence")
-            }
+        VkSemaphoreCreateInfo semaphore_create_info = {};
+        semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        VkFenceCreateInfo fence_create_info = {};
+        fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+        for (int i = 0; i < MAX_FRAME_ON_FLIGHT; i++) {
+            ASSERT_EQUAL(
+                vkCreateSemaphore(logicalDevice, &semaphore_create_info, nullptr, &imageAvailableSemaphore[i]),
+                VK_SUCCESS, "Failed to create semaphore")
+            ASSERT_EQUAL(
+                vkCreateSemaphore(logicalDevice, &semaphore_create_info, nullptr, &renderFinishedSemaphore[i]),
+                VK_SUCCESS, "Failed to create semaphore")
+            ASSERT_EQUAL(vkCreateFence(logicalDevice, &fence_create_info, nullptr, &inflightFence[i]), VK_SUCCESS,
+                         "Failed to create fence")
         }
     }
+
     VulkanDevice::~VulkanDevice() {
         vkDeviceWaitIdle(logicalDevice);
-        for (int i=0;i< MAX_FRAME_ON_FLIGHT; i++){
+        for (int i = 0; i < MAX_FRAME_ON_FLIGHT; i++) {
             vkDestroySemaphore(logicalDevice, renderFinishedSemaphore[i], nullptr);
             vkDestroySemaphore(logicalDevice, imageAvailableSemaphore[i], nullptr);
             vkDestroyFence(logicalDevice, inflightFence[i], nullptr);
@@ -157,7 +143,10 @@ namespace pyro {
         vkDestroyDevice(logicalDevice, nullptr);
         vkDestroySurfaceKHR(*instance->getInstance(), surface, nullptr);
     }
-    void VulkanDevice::initializeSwapChain(PyroWindow *window) const {}
+
+    void VulkanDevice::initializeSwapChain(PyroWindow *window) const {
+    }
+
     VkSurfaceFormatKHR VulkanDevice::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats) {
         for (const auto &format: formats) {
             if (format.colorSpace == VK_COLORSPACE_SRGB_NONLINEAR_KHR && format.format == VK_FORMAT_B8G8R8A8_SRGB) {
@@ -166,6 +155,7 @@ namespace pyro {
         }
         return formats[0];
     }
+
     VkPresentModeKHR VulkanDevice::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &modes) {
         for (const auto &mode: modes) {
             if (mode == VK_PRESENT_MODE_MAILBOX_KHR) {
@@ -174,6 +164,7 @@ namespace pyro {
         }
         return VK_PRESENT_MODE_FIFO_KHR;
     }
+
     VkExtent2D VulkanDevice::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, PyroWindow *window) {
         if (capabilities.currentExtent.width != UINT32_MAX) {
             return capabilities.currentExtent;
@@ -224,6 +215,28 @@ namespace pyro {
         swapChainImageFormat = surface_format.format;
     }
 
+    void VulkanDevice::create_image_views(int swapChainImageCount) {
+        swapChainImageViews.resize(swapChainImageCount);
+        for (uint32_t i = 0; i < swapChainImageCount; i++) {
+            VkImageViewCreateInfo view_create_info = {};
+            view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            view_create_info.image = swapChainImages[i];
+            view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            view_create_info.format = swapChainImageFormat;
+            view_create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+            view_create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+            view_create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+            view_create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+            view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            view_create_info.subresourceRange.baseMipLevel = 0;
+            view_create_info.subresourceRange.levelCount = 1;
+            view_create_info.subresourceRange.baseArrayLayer = 0;
+            view_create_info.subresourceRange.layerCount = 1;
+            ASSERT_EQUAL(vkCreateImageView(logicalDevice, &view_create_info, nullptr, &swapChainImageViews[i]),
+                         VK_SUCCESS, "Failed to create image views")
+        }
+    }
+
     std::string VulkanDevice::get_physical_device_name(const VkPhysicalDevice *device) {
         VkPhysicalDeviceProperties prop{};
         vkGetPhysicalDeviceProperties(*device, &prop);
@@ -232,6 +245,7 @@ namespace pyro {
 
         return prop.deviceName;
     }
+
     void VulkanDevice::record_command_buffer(const VkCommandBuffer &command_buffer, const uint32_t imageIndex,
                                              const VkRenderPass &renderPass, const VkPipeline graphics_pipeline,
                                              std::vector<VkFramebuffer> swapChainFrameBuffers,
@@ -295,19 +309,21 @@ namespace pyro {
         }
         return q_indices;
     }
-    std::multimap<int, VkPhysicalDevice, std::greater<>> VulkanDevice::listPhysicalDevices() const {
+
+    std::multimap<int, VkPhysicalDevice, std::greater<> > VulkanDevice::listPhysicalDevices() const {
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(*instance->getInstance(), &deviceCount, nullptr);
         ASSERT_EQUAL(deviceCount == 0, false, "No Supported GPUs. Please Install Vulkan.")
         std::vector<VkPhysicalDevice> all_devices(deviceCount);
         vkEnumeratePhysicalDevices(*instance->getInstance(), &deviceCount, all_devices.data());
-        std::multimap<int, VkPhysicalDevice, std::greater<>> devices;
+        std::multimap<int, VkPhysicalDevice, std::greater<> > devices;
         for (auto &device: all_devices) {
             int score{this->rateDevice(&device)};
             devices.insert(std::make_pair(score, device));
         }
         return devices;
     }
+
     int VulkanDevice::rateDevice(const VkPhysicalDevice *device) const {
         VkPhysicalDeviceProperties properties;
         VkPhysicalDeviceFeatures features;

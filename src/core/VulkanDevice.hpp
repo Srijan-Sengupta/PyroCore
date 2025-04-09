@@ -13,7 +13,7 @@
 #include "VulkanInstance.hpp"
 
 namespace pyro {
-    const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    const std::vector deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     const int MAX_FRAME_ON_FLIGHT = 2;
     struct SwapChainSupportDetails {
         VkSurfaceCapabilitiesKHR capabilities;
@@ -32,6 +32,7 @@ namespace pyro {
         VulkanDevice(const VulkanDevice &) = delete;
         VulkanDevice &operator=(const VulkanDevice &) = delete;
         void create_swap_chain(SwapChainSupportDetails swap_support, PyroWindow *window);
+        void create_image_views(int swapChainImageCount);
 
         static std::string get_physical_device_name(const VkPhysicalDevice *device);
         static void record_command_buffer(const VkCommandBuffer &command_buffer, const uint32_t imageIndex,
