@@ -5,7 +5,7 @@
 #ifndef VULKANINSTANCE_HPP
 #define VULKANINSTANCE_HPP
 
-#include <vulkan/vulkan.h>
+#include <vector>
 
 #include "../window/PyroWindow.hpp"
 

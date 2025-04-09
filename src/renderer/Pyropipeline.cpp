@@ -179,6 +179,18 @@ namespace pyro {
                      VK_SUCCESS, "Failed to create pipeline")
 
         // Creating Frame Buffers
+        create_frame_buffers();
+    }
+    Pyropipeline::~Pyropipeline() {
+        LOG(LogLevel::DEBUG, "Destroying Vulkan Pipeline");
+        vkDeviceWaitIdle(device->get_logical_device());
+        destroy_frame_buffers();
+        vkDestroyPipeline(device->get_logical_device(), pipeline, nullptr);
+        vkDestroyPipelineLayout(device->get_logical_device(), pipeline_layout, nullptr);
+        vkDestroyRenderPass(device->get_logical_device(), render_pass, nullptr);
+    }
+
+    void Pyropipeline::create_frame_buffers() {
         swap_chain_framebuffers.resize(device->get_swap_chain_image_views().size());
         for (uint32_t i = 0; i < device->get_swap_chain_image_views().size(); i++) {
             VkImageView attachment_view[] = {device->get_swap_chain_image_views()[i]};
@@ -195,14 +207,10 @@ namespace pyro {
                          VK_SUCCESS, "Failed to create framebuffer")
         }
     }
-    Pyropipeline::~Pyropipeline() {
-        LOG(LogLevel::DEBUG, "Destroying Vulkan Pipeline");
-        vkDeviceWaitIdle(device->get_logical_device());
-        for (auto swap_chain_framebuffer : swap_chain_framebuffers) {
+
+    void Pyropipeline::destroy_frame_buffers() {
+        for (const auto swap_chain_framebuffer : swap_chain_framebuffers) {
             vkDestroyFramebuffer(device->get_logical_device(), swap_chain_framebuffer, nullptr);
         }
-        vkDestroyPipeline(device->get_logical_device(), pipeline, nullptr);
-        vkDestroyPipelineLayout(device->get_logical_device(), pipeline_layout, nullptr);
-        vkDestroyRenderPass(device->get_logical_device(), render_pass, nullptr);
     }
 } // namespace pyro

@@ -27,6 +27,8 @@ namespace pyro {
 
         window = SDL_CreateWindow(title.c_str(), width, height, sdl_options | SDL_WINDOW_VULKAN);
         ASSERT_EQUAL(!window, false, "Failed to create window");
+
+        LOG(LogLevel::DEBUG, "Window resize callback is being added");
     }
 
     PyroWindow::~PyroWindow() {
@@ -37,7 +39,13 @@ namespace pyro {
 
     bool PyroWindow::should_close() { return event.type == SDL_EVENT_QUIT; }
 
-    void PyroWindow::poll_events() { SDL_PollEvent(&event); }
+    void PyroWindow::poll_events() {
+        SDL_PollEvent(&event);
+        if (event.window.type == SDL_EVENT_WINDOW_RESIZED) {
+            SDL_GetWindowSize(window, reinterpret_cast<int *>(&width), reinterpret_cast<int *>(&height));
+            resize_callback(width, height);
+        }
+    }
     VkExtent2D PyroWindow::get_extent() {
         int width, height;
         SDL_GetWindowSizeInPixels(window, &width, &height);

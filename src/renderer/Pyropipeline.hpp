@@ -4,6 +4,8 @@
 
 #ifndef PYROPIPELINE_HPP
 #define PYROPIPELINE_HPP
+#include <vector>
+
 #include "../core/VulkanDevice.hpp"
 
 namespace pyro {
@@ -12,6 +14,9 @@ namespace pyro {
     public:
         Pyropipeline(VulkanDevice *device);
         ~Pyropipeline();
+
+        void create_frame_buffers();
+        void destroy_frame_buffers();
         std::vector<VkDynamicState> get_dynamic_states() const { return dynamic_states; }
         VkPipelineLayout get_pipeline_layout() const { return pipeline_layout; }
         VulkanDevice *get_device() const { return device; }

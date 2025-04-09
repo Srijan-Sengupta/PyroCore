@@ -22,6 +22,7 @@ namespace pyro {
         ~PyroRender();
 
         void run();
+        void recreate_swapchain();
 
     private:
         void draw_frame();

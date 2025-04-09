@@ -7,7 +7,7 @@
 
 #include <map>
 #include <optional>
-#include <vulkan/vulkan.h>
+#include <vector>
 
 #include "../window/PyroWindow.hpp"
 #include "VulkanInstance.hpp"
@@ -31,12 +31,13 @@ namespace pyro {
         ~VulkanDevice();
         VulkanDevice(const VulkanDevice &) = delete;
         VulkanDevice &operator=(const VulkanDevice &) = delete;
-        void create_swap_chain(SwapChainSupportDetails swap_support, PyroWindow *window);
-        void create_image_views(int swapChainImageCount);
+        void create_swap_chain(PyroWindow *window);
+        void create_image_views();
+        void destroy_swap_chain();
 
         static std::string get_physical_device_name(const VkPhysicalDevice *device);
-        static void record_command_buffer(const VkCommandBuffer &command_buffer, const uint32_t imageIndex,
-                                   const VkRenderPass &renderPass, const VkPipeline graphics_pipeline,
+        static void record_command_buffer(const VkCommandBuffer &command_buffer, uint32_t imageIndex,
+                                   const VkRenderPass &renderPass, VkPipeline graphics_pipeline,
                                    std::vector<VkFramebuffer> swapChainFrameBuffers, VkExtent2D swapchain_extent);
 
 
@@ -80,8 +81,6 @@ namespace pyro {
         std::vector<VkSemaphore> renderFinishedSemaphore;
         std::vector<VkFence> inflightFence;
 
-
-        void initializeSwapChain(PyroWindow *window) const;
         static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats);
         static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &modes);
         static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, PyroWindow *window);

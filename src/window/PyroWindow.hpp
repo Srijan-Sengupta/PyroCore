@@ -6,10 +6,10 @@
 #define PYROWINDOW_HPP
 
 
+#include <functional>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
 #include <string>
-#include <vector>
 #include <vulkan/vulkan_core.h>
 
 namespace pyro {
@@ -38,12 +38,20 @@ namespace pyro {
 
         char const *const *get_instance_extensions(uint32_t *ext_count);
         VkSurfaceKHR create_surface(VkInstance *instance);
+        bool is_resized() const {
+            return resized;
+        }
+        void set_resize_callback(std::function<void(uint32_t w, uint32_t h)> resize_callback) {
+            this->resize_callback = resize_callback;
+        }
 
     private:
         SDL_Window *window;
         SDL_Event event;
         uint32_t width;
         uint32_t height;
+        bool resized;
+        std::function<void(uint32_t w, uint32_t h)> resize_callback;
     };
 } // namespace pyro
 

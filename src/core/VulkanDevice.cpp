@@ -64,31 +64,13 @@ namespace pyro {
         vkGetDeviceQueue(logicalDevice, indices.present_family_index.value(), 0, &presentQueue);
         ASSERT_EQUAL(graphicsQueue == nullptr, false, "Failed to find graphics queue on this device")
         ASSERT_EQUAL(presentQueue == nullptr, false, "Failed to find present queue on this device")
-        SwapChainSupportDetails swap_support = {};
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &swap_support.capabilities);
-        uint32_t format_count = 0;
-        uint32_t present_mode_count = 0;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &format_count, nullptr);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &present_mode_count, nullptr);
-        ASSERT_EQUAL(format_count != 0, true, "Failed to get surface formats on this device")
-        ASSERT_EQUAL(present_mode_count != 0, true, "Failed to get surface presentation modes on this device")
-        swap_support.formats.resize(format_count);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &format_count, swap_support.formats.data());
-        swap_support.presentModes.resize(present_mode_count);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &present_mode_count,
-                                                  swap_support.presentModes.data());
 
 
         // Creating Swap chain.
-        create_swap_chain(swap_support, window);
-
-        uint32_t swapChainImageCount;
-        vkGetSwapchainImagesKHR(logicalDevice, swapChain, &swapChainImageCount, nullptr);
-        swapChainImages.resize(swapChainImageCount);
-        vkGetSwapchainImagesKHR(logicalDevice, swapChain, &swapChainImageCount, swapChainImages.data());
+        create_swap_chain(window);
 
         // Creating Image Views
-        create_image_views(swapChainImageCount);
+        create_image_views();
         // Create Command pool
         VkCommandPoolCreateInfo command_pool_create_info = {};
         command_pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -136,15 +118,9 @@ namespace pyro {
             vkDestroyFence(logicalDevice, inflightFence[i], nullptr);
         }
         vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
-        for (auto imageView: swapChainImageViews) {
-            vkDestroyImageView(logicalDevice, imageView, nullptr);
-        }
-        vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
+        destroy_swap_chain();
         vkDestroyDevice(logicalDevice, nullptr);
         vkDestroySurfaceKHR(*instance->getInstance(), surface, nullptr);
-    }
-
-    void VulkanDevice::initializeSwapChain(PyroWindow *window) const {
     }
 
     VkSurfaceFormatKHR VulkanDevice::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats) {
@@ -177,7 +153,21 @@ namespace pyro {
         return swap_extent;
     }
 
-    void VulkanDevice::create_swap_chain(SwapChainSupportDetails swap_support, PyroWindow *window) {
+    void VulkanDevice::create_swap_chain(PyroWindow *window) {
+        SwapChainSupportDetails swap_support = {};
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &swap_support.capabilities);
+        uint32_t format_count = 0;
+        uint32_t present_mode_count = 0;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &format_count, nullptr);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &present_mode_count, nullptr);
+        ASSERT_EQUAL(format_count != 0, true, "Failed to get surface formats on this device")
+        ASSERT_EQUAL(present_mode_count != 0, true, "Failed to get surface presentation modes on this device")
+        swap_support.formats.resize(format_count);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &format_count, swap_support.formats.data());
+        swap_support.presentModes.resize(present_mode_count);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &present_mode_count,
+                                                  swap_support.presentModes.data());
+
         VkSurfaceFormatKHR surface_format = chooseSwapSurfaceFormat(swap_support.formats);
         VkPresentModeKHR present_mode = chooseSwapPresentMode(swap_support.presentModes);
         VkExtent2D swap_extent = chooseSwapExtent(swap_support.capabilities, window);
@@ -215,7 +205,11 @@ namespace pyro {
         swapChainImageFormat = surface_format.format;
     }
 
-    void VulkanDevice::create_image_views(int swapChainImageCount) {
+    void VulkanDevice::create_image_views() {
+        uint32_t swapChainImageCount;
+        vkGetSwapchainImagesKHR(logicalDevice, swapChain, &swapChainImageCount, nullptr);
+        swapChainImages.resize(swapChainImageCount);
+        vkGetSwapchainImagesKHR(logicalDevice, swapChain, &swapChainImageCount, swapChainImages.data());
         swapChainImageViews.resize(swapChainImageCount);
         for (uint32_t i = 0; i < swapChainImageCount; i++) {
             VkImageViewCreateInfo view_create_info = {};
@@ -235,6 +229,13 @@ namespace pyro {
             ASSERT_EQUAL(vkCreateImageView(logicalDevice, &view_create_info, nullptr, &swapChainImageViews[i]),
                          VK_SUCCESS, "Failed to create image views")
         }
+    }
+
+    void VulkanDevice::destroy_swap_chain() {
+        for (const VkImageView & swapChainImageView : swapChainImageViews) {
+            vkDestroyImageView(logicalDevice, swapChainImageView, nullptr);
+        }
+        vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
     }
 
     std::string VulkanDevice::get_physical_device_name(const VkPhysicalDevice *device) {

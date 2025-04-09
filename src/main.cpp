@@ -14,7 +14,7 @@ int main() {
     pyro::Logger::getInstance().setLogLevel(pyro::LogLevel::INFO);
     pyro::Logger::getInstance().enableFileLogging("pyro.log");
 #endif
-    LOG(pyro::LogLevel::DEBUG, "Application started.");
+    LOG(pyro::LogLevel::INFO, "Application started.");
     pyro::PyroRender render;
     render.run();
     return 0;
