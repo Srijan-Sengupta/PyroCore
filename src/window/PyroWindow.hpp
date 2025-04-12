@@ -37,10 +37,13 @@ namespace pyro {
 
 
         char const *const *get_instance_extensions(uint32_t *ext_count);
+
         VkSurfaceKHR create_surface(VkInstance *instance);
+
         bool is_resized() const {
             return resized;
         }
+
         void set_resize_callback(std::function<void(uint32_t w, uint32_t h)> resize_callback) {
             this->resize_callback = resize_callback;
         }

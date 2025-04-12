@@ -18,11 +18,13 @@ namespace pyro {
         ASSERT_EQUAL(vkCreateShaderModule(device->get_logical_device(), &info, nullptr, &shader_module), VK_SUCCESS,
                      "Failed to create shader module");
     }
-    PyroShaderModule::PyroShaderModule(VulkanDevice *device, const std::string &path, const PyroShaderModuleType type) :
-        PyroShaderModule(device, ShaderLoader::loadSPV(path), type) {}
+
+    PyroShaderModule::PyroShaderModule(VulkanDevice *device, const std::string &path,
+                                       const PyroShaderModuleType type) : PyroShaderModule(
+        device, ShaderLoader::loadSPV(path), type) {
+    }
+
     PyroShaderModule::~PyroShaderModule() {
         vkDestroyShaderModule(device_->get_logical_device(), shader_module, nullptr);
     }
-
-
 } // namespace pyro

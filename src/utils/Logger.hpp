@@ -53,10 +53,9 @@ namespace pyro {
 
             std::ostringstream logStream;
             logStream << getCurrentTime() << " [" << logLevelToString(level) << "] " << file << ":" << line << " - "
-                      << message << "\n";
+                    << message << "\n";
 
-            std::string logMessage = logStream.str();
-            {
+            std::string logMessage = logStream.str(); {
                 std::lock_guard lock(mutex_);
                 if (level >= LogLevel::WARNING)
                     std::cerr << logMessage;
@@ -76,7 +75,8 @@ namespace pyro {
         }
 
     private:
-        Logger() : minLogLevel(LogLevel::DEBUG) {}
+        Logger() : minLogLevel(LogLevel::DEBUG) {
+        }
 
         std::string getCurrentTime() {
             auto now = std::chrono::system_clock::now();

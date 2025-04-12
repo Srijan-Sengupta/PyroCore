@@ -52,23 +52,23 @@ namespace pyro {
         instance_create_info.pNext = reinterpret_cast<VkDebugUtilsMessengerEXT *>(&debug_utils_messenger_create_info);
 #endif
         ASSERT_EQUAL(vkCreateInstance(&instance_create_info, nullptr, &instance), VK_SUCCESS,
-               "Failed to create Vulkan Instance")
+                     "Failed to create Vulkan Instance")
         LOG(LogLevel::INFO, "Created Vulkan Instance");
         LOG(LogLevel::DEBUG, "Enabled extensions: {}", extension_count);
 
 #ifdef PYRO_DEBUG
         auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
-                vkGetInstanceProcAddr(instance, ("vkCreateDebugUtilsMessengerEXT")));
+            vkGetInstanceProcAddr(instance, ("vkCreateDebugUtilsMessengerEXT")));
         ASSERT_EQUAL(!func, false, "Failed to find vkCreateDebugUtilsMessengerEXT function")
         ASSERT_EQUAL(func(instance, &debug_utils_messenger_create_info, nullptr, &debug_utils_messenger), VK_SUCCESS,
-               "Failed to call vkCreateDebugUtilsMessengerEXT")
+                     "Failed to call vkCreateDebugUtilsMessengerEXT")
 #endif
     }
 
     VulkanInstance::~VulkanInstance() {
 #ifdef PYRO_DEBUG
         auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
-                vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT"));
+            vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT"));
         ASSERT_EQUAL(!func, false, "Failed to find vkDestroyDebugUtilsMessengerEXT function")
         func(instance, debug_utils_messenger, nullptr);
 #endif

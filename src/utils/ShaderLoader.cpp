@@ -12,7 +12,7 @@
 namespace pyro {
     std::vector<char> ShaderLoader::loadSPV(const std::string &path) {
         std::vector<char> data;
-        std::ifstream file(path, std::ios::binary|std::ios::ate);
+        std::ifstream file(path, std::ios::binary | std::ios::ate);
         if (!file.is_open()) {
             LOG(LogLevel::ERROR, "Failed to open file %s", path);
         }

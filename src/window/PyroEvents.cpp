@@ -4,4 +4,5 @@
 
 #include "PyroEvents.hpp"
 
-namespace pyro {} // namespace pyro
+namespace pyro {
+} // namespace pyro

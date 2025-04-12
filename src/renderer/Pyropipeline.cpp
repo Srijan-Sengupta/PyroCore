@@ -151,8 +151,8 @@ namespace pyro {
         ASSERT_EQUAL(vkCreateRenderPass(device->get_logical_device(), &renderPassInfo, nullptr, &render_pass),
                      VK_SUCCESS, "Failed to create render pass");
         ASSERT_EQUAL(
-                vkCreatePipelineLayout(device->get_logical_device(), &pipelineLayoutInfo, nullptr, &pipeline_layout),
-                VK_SUCCESS, "Failed to create pipeline layout")
+            vkCreatePipelineLayout(device->get_logical_device(), &pipelineLayoutInfo, nullptr, &pipeline_layout),
+            VK_SUCCESS, "Failed to create pipeline layout")
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -175,12 +175,13 @@ namespace pyro {
         pipelineInfo.basePipelineIndex = -1;
 
         ASSERT_EQUAL(vkCreateGraphicsPipelines(device->get_logical_device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
-                                               &pipeline),
+                         &pipeline),
                      VK_SUCCESS, "Failed to create pipeline")
 
         // Creating Frame Buffers
         create_frame_buffers();
     }
+
     Pyropipeline::~Pyropipeline() {
         LOG(LogLevel::DEBUG, "Destroying Vulkan Pipeline");
         vkDeviceWaitIdle(device->get_logical_device());
@@ -203,13 +204,13 @@ namespace pyro {
             framebuffer_create_info.height = device->get_swap_chain_extent().height;
             framebuffer_create_info.layers = 1;
             ASSERT_EQUAL(vkCreateFramebuffer(device->get_logical_device(), &framebuffer_create_info, nullptr,
-                                             &swap_chain_framebuffers[i]),
+                             &swap_chain_framebuffers[i]),
                          VK_SUCCESS, "Failed to create framebuffer")
         }
     }
 
     void Pyropipeline::destroy_frame_buffers() {
-        for (const auto swap_chain_framebuffer : swap_chain_framebuffers) {
+        for (const auto swap_chain_framebuffer: swap_chain_framebuffers) {
             vkDestroyFramebuffer(device->get_logical_device(), swap_chain_framebuffer, nullptr);
         }
     }

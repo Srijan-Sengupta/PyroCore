@@ -47,9 +47,9 @@ namespace pyro {
                         UINT64_MAX);
         uint32_t image_index;
         const VkResult next_image_result = vkAcquireNextImageKHR(device.get_logical_device(), device.get_swap_chain(),
-                                                           UINT64_MAX,
-                                                           device.get_image_available_semaphore()[current_frame],
-                                                           VK_NULL_HANDLE, &image_index);
+                                                                 UINT64_MAX,
+                                                                 device.get_image_available_semaphore()[current_frame],
+                                                                 VK_NULL_HANDLE, &image_index);
         if (next_image_result == VK_ERROR_OUT_OF_DATE_KHR) {
             recreate_swapchain();
             return;

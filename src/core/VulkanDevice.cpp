@@ -232,7 +232,7 @@ namespace pyro {
     }
 
     void VulkanDevice::destroy_swap_chain() {
-        for (const VkImageView & swapChainImageView : swapChainImageViews) {
+        for (const VkImageView &swapChainImageView: swapChainImageViews) {
             vkDestroyImageView(logicalDevice, swapChainImageView, nullptr);
         }
         vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);

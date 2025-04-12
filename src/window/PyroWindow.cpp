@@ -12,8 +12,8 @@
 #include "../utils/Logger.hpp"
 
 namespace pyro {
-    PyroWindow::PyroWindow(int width, int height, const std::string &title, int options) :
-        width(width), height(height) {
+    PyroWindow::PyroWindow(int width, int height, const std::string &title,
+                           int options) : width(width), height(height) {
         SDL_WindowFlags sdl_options = 0;
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 
@@ -46,12 +46,13 @@ namespace pyro {
             resize_callback(width, height);
         }
     }
+
     VkExtent2D PyroWindow::get_extent() {
         int width, height;
         SDL_GetWindowSizeInPixels(window, &width, &height);
         VkExtent2D extent = {
-        .width = static_cast<uint32_t>(width) ,
-        .height = static_cast<uint32_t>(height),
+            .width = static_cast<uint32_t>(width),
+            .height = static_cast<uint32_t>(height),
         };
         return extent;
     }
@@ -61,6 +62,7 @@ namespace pyro {
         extensions = SDL_Vulkan_GetInstanceExtensions(ext_count);
         return extensions;
     }
+
     VkSurfaceKHR PyroWindow::create_surface(VkInstance *instance) {
         VkSurfaceKHR surface;
         ASSERT_EQUAL(SDL_Vulkan_CreateSurface(window, *instance, nullptr, &surface), true, "Failed to create surface");

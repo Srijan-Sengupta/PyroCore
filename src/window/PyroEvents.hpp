@@ -6,8 +6,8 @@
 #define PYROEVENTS_HPP
 
 #define SDL2
-namespace pyro {
 
+namespace pyro {
     enum class KeyCode {
 #if GLFW
         UNKNOWN = GLFW_KEY_UNKNOWN,
@@ -138,11 +138,10 @@ namespace pyro {
         Right_SUPER = GLFW_KEY_RIGHT_SUPER,
         Menu = GLFW_KEY_MENU
 #endif
-
     };
 
-    class PyroEvents {};
-
+    class PyroEvents {
+    };
 } // namespace pyro
 
 #endif // PYROEVENTS_HPP

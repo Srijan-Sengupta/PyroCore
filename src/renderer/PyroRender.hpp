@@ -18,14 +18,18 @@ namespace pyro {
         VulkanInstance instance;
         VulkanDevice device;
         Pyropipeline pyroPipeline;
+
         PyroRender();
+
         ~PyroRender();
 
         void run();
+
         void recreate_swapchain();
 
     private:
         void draw_frame();
+
         int current_frame = 0;
     };
 } // namespace pyro
