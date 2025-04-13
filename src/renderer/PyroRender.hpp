@@ -17,7 +17,7 @@ namespace pyro {
         PyroWindow window;
         VulkanInstance instance;
         VulkanDevice device;
-        Pyropipeline pyroPipeline;
+        PyroPipeline pyroPipeline;
 
         PyroRender();
 

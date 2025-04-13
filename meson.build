@@ -1,12 +1,29 @@
 project('PyroCore', 'cpp',
-        default_options : ['cpp_std=c++20']
+        default_options : ['cpp_std=c++20', 'default_library=static', 'b_staticpic=true']
 )
 subdir('src')
 subdir('assets')
 
-deps = [dependency('vulkan'), dependency('glm')]
+cmake = import('cmake')
+
+deps = [dependency('vulkan', native : false)]
+
+glm_proj = cmake.subproject('glm')
+glm = glm_proj.dependency('glm')
+deps += glm
+
+cmake_subproj_opts = cmake.subproject_options()
+
 if get_option('sdl')
-    sdl_dep = dependency('sdl3', required : true)
+    if (host_machine.system() == 'linux')
+        cmake_subproj_opts.add_cmake_defines({ 'SDL_STATIC' : 'ON' })
+        cmake_subproj_opts.add_cmake_defines({ 'SDL_SHARED' : 'OFF' })
+        sdl_proj = cmake.subproject('SDL3-3.2.10', options : cmake_subproj_opts)
+        sdl_dep = sdl_proj.dependency('SDL3-static')
+    else
+        sdl_proj = cmake.subproject('SDL3-3.2.10', options : cmake_subproj_opts)
+        sdl_dep = sdl_proj.dependency('SDL3-shared')
+    endif
     deps += sdl_dep
     add_project_arguments('-DUSE_SDL', language : 'cpp')
 endif

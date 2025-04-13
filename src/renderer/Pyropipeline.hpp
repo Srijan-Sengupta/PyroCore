@@ -9,11 +9,11 @@
 #include "../core/VulkanDevice.hpp"
 
 namespace pyro {
-    class Pyropipeline {
+    class PyroPipeline {
     public:
-        Pyropipeline(VulkanDevice *device);
+        PyroPipeline(VulkanDevice *device);
 
-        ~Pyropipeline();
+        ~PyroPipeline();
 
         void create_frame_buffers();
 

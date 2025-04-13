@@ -8,7 +8,7 @@
 #include "../utils/Logger.hpp"
 
 namespace pyro {
-    Pyropipeline::Pyropipeline(VulkanDevice *device) : device(device) {
+    PyroPipeline::PyroPipeline(VulkanDevice *device) : device(device) {
         PyroShaderModule vertexShader{device, "assets/shaders/basic.vert.spv", PyroShaderModuleType::PYRO_VERTEX};
         PyroShaderModule fragmentShader{device, "assets/shaders/basic.frag.spv", PyroShaderModuleType::PYRO_FRAGMENT};
         VkPipelineShaderStageCreateInfo vertexShaderStageInfo{};
@@ -182,7 +182,7 @@ namespace pyro {
         create_frame_buffers();
     }
 
-    Pyropipeline::~Pyropipeline() {
+    PyroPipeline::~PyroPipeline() {
         LOG(LogLevel::DEBUG, "Destroying Vulkan Pipeline");
         vkDeviceWaitIdle(device->get_logical_device());
         destroy_frame_buffers();
@@ -191,7 +191,7 @@ namespace pyro {
         vkDestroyRenderPass(device->get_logical_device(), render_pass, nullptr);
     }
 
-    void Pyropipeline::create_frame_buffers() {
+    void PyroPipeline::create_frame_buffers() {
         swap_chain_framebuffers.resize(device->get_swap_chain_image_views().size());
         for (uint32_t i = 0; i < device->get_swap_chain_image_views().size(); i++) {
             VkImageView attachment_view[] = {device->get_swap_chain_image_views()[i]};
@@ -209,7 +209,7 @@ namespace pyro {
         }
     }
 
-    void Pyropipeline::destroy_frame_buffers() {
+    void PyroPipeline::destroy_frame_buffers() {
         for (const auto swap_chain_framebuffer: swap_chain_framebuffers) {
             vkDestroyFramebuffer(device->get_logical_device(), swap_chain_framebuffer, nullptr);
         }
